@@ -29,6 +29,21 @@ numberRows =
     4
 
 
+numberOfImages : Int
+numberOfImages =
+    13
+
+
+takeImagesFromCatalog : Int -> Int -> List Int
+takeImagesFromCatalog sampleSize totalSize =
+    List.range 1 totalSize 
+
+
+intListToString : List Int -> String
+intListToString myList =
+    String.concat <| List.map (\s -> String.fromInt s ++ ",") myList
+
+
 
 ---- UPDATE ----
 
@@ -58,6 +73,7 @@ view model =
                 ]
                 { src = "logo.svg", description = "Elm logo" }
             , Element.text "Your Elm App is working!"
+            , Element.text <| intListToString <| takeImagesFromCatalog 3 13
             , el []
                 (Element.column []
                     (List.range 1 numberColumns
@@ -66,13 +82,13 @@ view model =
                                 List.range 1 numberRows
                                     |> List.map
                                         (\row -> Element.text (String.fromInt row ++ String.fromInt col))
-                            
                             )
-                            |> List.concat
+                        |> List.concat
                     )
                 )
             ]
         )
+
 
 
 ---- PROGRAM ----
