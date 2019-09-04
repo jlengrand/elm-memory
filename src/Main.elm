@@ -50,7 +50,15 @@ view model =
                     |> List.map (\columnNumber ->
                         Element.column [] ( 
                         List.range 1 4 
-                            |> List.map (\rowNumber -> Element.text <| "[" ++ String.fromInt rowNumber ++ String.fromInt columnNumber ++ "]")
+                            |> List.map (\rowNumber -> 
+                                    Element.row [] [
+                                        Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
+                                            src = "pokemons/1.png"
+                                            , description = "The image of a pokemon"
+                                        }
+                                        -- ,Element.text <| "[" ++ String.fromInt rowNumber ++ String.fromInt columnNumber ++ "]"
+                                    ]
+                                )
                         )
                     )
                 )
