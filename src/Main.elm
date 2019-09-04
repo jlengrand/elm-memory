@@ -89,20 +89,12 @@ view model =
             }
             , Element.text "Our memory game" 
             , Element.row [] 
-                (List.range 1 numberOfColumns
-                    |> List.map (\columnNumber ->
-                        Element.column [] ( 
-                        List.range 1 numberOfRows
-                            |> List.map (\rowNumber -> 
-                                    Element.row [] [
-                                        Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
-                                            src = "pokemons/1.png"
-                                            , description = "The image of a pokemon"
-                                        }
-                                        -- ,Element.text <| "[" ++ String.fromInt rowNumber ++ String.fromInt columnNumber ++ "]"
-                                    ]
-                                )
-                        )
+                (model.gridReadyPokemonList
+                    |> List.map (\pId -> 
+                        Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
+                            src = "pokemons/" ++ String.fromInt pId ++ ".png"
+                            , description = "The image of a pokemon"
+                        }
                     )
                 )
             , Element.text <| listOfIntsToString fullListOfPokemons
