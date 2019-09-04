@@ -12,26 +12,28 @@ import Random.List
 ---- MODEL ----
 
 numberOfRows : Int
-numberOfRows = 3
+numberOfRows = 4
 
 numberOfColumns : Int
-numberOfColumns = 3
+numberOfColumns = 4
 
 numberOfPokemonsNeeded : Int
-numberOfPokemonsNeeded = 8
+numberOfPokemonsNeeded = (numberOfColumns * numberOfRows) // 2
 
 numberOfPokemons : Int
 numberOfPokemons = 13
 
 type alias Model =
-    {selectedPokemonList : List Int}
+    {selectedPokemonList : List Int
+    , gridReadyPokemonList : List Int}
 
 
 init : ( Model, Cmd Msg )
 init =
     ( {
         selectedPokemonList = []
-    }, Cmd.none )
+        , gridReadyPokemonList = []
+    }, Random.generate Shuffled (Random.List.shuffle fullListOfPokemons) )
 
 fullListOfPokemons : List Int
 fullListOfPokemons =
@@ -42,6 +44,8 @@ listOfIntsToString myList =
     List.map (\i -> String.fromInt i ++ ",") myList
     |> String.concat
 
+
+
 ---- UPDATE ----
 
 
@@ -49,6 +53,7 @@ type Msg
     = NoOp
     | ShuffleClicked
     | Shuffled (List Int)
+    | ShuffledFullList (List Int)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -57,7 +62,16 @@ update msg model =
         ShuffleClicked ->
             ( model, Random.generate Shuffled (Random.List.shuffle fullListOfPokemons) )
         Shuffled newList ->
-            ({selectedPokemonList = newList |> List.take numberOfPokemonsNeeded}, Cmd.none)
+            let 
+                shortList  = newList |> List.take numberOfPokemonsNeeded
+                gridReadyList = shortList ++ shortList
+            in 
+                ({model | 
+                selectedPokemonList = shortList}
+                , Random.generate ShuffledFullList (Random.List.shuffle gridReadyList))
+        
+        ShuffledFullList fullList ->
+            ({model | gridReadyPokemonList = fullList}, Cmd.none)
         NoOp -> 
             ( model, Cmd.none )
 
@@ -75,10 +89,10 @@ view model =
             }
             , Element.text "Our memory game" 
             , Element.row [] 
-                (List.range 1 (numberOfColumns + 1)
+                (List.range 1 numberOfColumns
                     |> List.map (\columnNumber ->
                         Element.column [] ( 
-                        List.range 1 (numberOfRows + 1)
+                        List.range 1 numberOfRows
                             |> List.map (\rowNumber -> 
                                     Element.row [] [
                                         Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
@@ -93,6 +107,7 @@ view model =
                 )
             , Element.text <| listOfIntsToString fullListOfPokemons
             , Element.text <| listOfIntsToString model.selectedPokemonList
+            , Element.text <| listOfIntsToString model.gridReadyPokemonList
             , Element.Input.button [] {
                 onPress = Just ShuffleClicked
                 ,label = Element.text "Shuffle List"
