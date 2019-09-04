@@ -24,15 +24,13 @@ numberOfPokemons : Int
 numberOfPokemons = 13
 
 type alias Model =
-    {selectedPokemonList : List Int
-    , gridReadyPokemonList : List Int}
+    {gridReadyPokemonList : List Int}
 
 
 init : ( Model, Cmd Msg )
 init =
     ( {
-        selectedPokemonList = []
-        , gridReadyPokemonList = []
+        gridReadyPokemonList = []
     }, Random.generate Shuffled (Random.List.shuffle fullListOfPokemons) )
 
 fullListOfPokemons : List Int
@@ -44,7 +42,9 @@ listOfIntsToString myList =
     List.map (\i -> String.fromInt i ++ ",") myList
     |> String.concat
 
-
+repeat : List a -> List a
+repeat theList =
+    theList ++ theList
 
 ---- UPDATE ----
 
@@ -64,11 +64,12 @@ update msg model =
         Shuffled newList ->
             let 
                 shortList  = newList |> List.take numberOfPokemonsNeeded
-                gridReadyList = shortList ++ shortList
             in 
-                ({model | 
-                selectedPokemonList = shortList}
-                , Random.generate ShuffledFullList (Random.List.shuffle gridReadyList))
+                (model
+                , Random.generate ShuffledFullList (
+                    Random.List.shuffle <| repeat
+                 (newList |> List.take numberOfPokemonsNeeded)   
+                ))
         
         ShuffledFullList fullList ->
             ({model | gridReadyPokemonList = fullList}, Cmd.none)
@@ -97,9 +98,6 @@ view model =
                         }
                     )
                 )
-            , Element.text <| listOfIntsToString fullListOfPokemons
-            , Element.text <| listOfIntsToString model.selectedPokemonList
-            , Element.text <| listOfIntsToString model.gridReadyPokemonList
             , Element.Input.button [] {
                 onPress = Just ShuffleClicked
                 ,label = Element.text "Shuffle List"
