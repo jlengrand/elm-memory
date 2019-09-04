@@ -23,8 +23,16 @@ numberOfPokemonsNeeded = (numberOfColumns * numberOfRows) // 2
 numberOfPokemons : Int
 numberOfPokemons = 13
 
+type CardState =
+    Hidden
+    | Visible
+
+type alias Card = {
+    id : Int, 
+    state : CardState}
+
 type alias Model =
-    {gridReadyPokemonList : List Int}
+    {gridReadyPokemonList : List Card}
 
 
 init : ( Model, Cmd Msg )
@@ -62,9 +70,6 @@ update msg model =
         ShuffleClicked ->
             ( model, Random.generate Shuffled (Random.List.shuffle fullListOfPokemons) )
         Shuffled newList ->
-            let 
-                shortList  = newList |> List.take numberOfPokemonsNeeded
-            in 
                 (model
                 , Random.generate ShuffledFullList (
                     Random.List.shuffle <| repeat
@@ -72,7 +77,10 @@ update msg model =
                 ))
         
         ShuffledFullList fullList ->
-            ({model | gridReadyPokemonList = fullList}, Cmd.none)
+            let
+                cardList = List.map (\theId -> {id = theId, state = Visible}) fullList 
+            in 
+            ({model | gridReadyPokemonList = cardList}, Cmd.none)
         NoOp -> 
             ( model, Cmd.none )
 
@@ -91,9 +99,9 @@ view model =
             , Element.text "Our memory game" 
             , Element.row [] 
                 (model.gridReadyPokemonList
-                    |> List.map (\pId -> 
+                    |> List.map (\card -> 
                         Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
-                            src = "pokemons/" ++ String.fromInt pId ++ ".png"
+                            src = "pokemons/" ++ String.fromInt card.id ++ ".png"
                             , description = "The image of a pokemon"
                         }
                     )
