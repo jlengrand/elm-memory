@@ -28,7 +28,8 @@ type CardState =
     | Visible
 
 type alias Card = {
-    id : Int, 
+    id: Int,
+    pokemonId : Int, 
     state : CardState}
 
 type alias Model =
@@ -62,6 +63,7 @@ type Msg
     | ShuffleClicked
     | Shuffled (List Int)
     | ShuffledFullList (List Int)
+    | PokemonCardClicked Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,12 +80,21 @@ update msg model =
         
         ShuffledFullList fullList ->
             let
-                cardList = List.map (\theId -> {id = theId, state = Visible}) fullList 
+                cardList = List.indexedMap (\index theId -> {id = index, pokemonId = theId, state = Visible}) fullList 
             in 
             ({model | gridReadyPokemonList = cardList}, Cmd.none)
+        PokemonCardClicked cardId -> 
+            ( {model | gridReadyPokemonList = flipCardWithId cardId model.gridReadyPokemonList}, Cmd.none )            
         NoOp -> 
             ( model, Cmd.none )
 
+flipCardWithId : Int -> List Card -> List Card
+flipCardWithId cardId cards = 
+    List.map (\c -> if (c.id == cardId) then {c | state = flipState c.state} else c) cards
+
+flipState : CardState -> CardState
+flipState myState = 
+    if myState == Visible then Hidden else Visible
 
 ---- VIEW ----
 
@@ -100,9 +111,12 @@ view model =
             , Element.row [] 
                 (model.gridReadyPokemonList
                     |> List.map (\card -> 
-                        Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
-                            src = "pokemons/" ++ String.fromInt card.id ++ ".png"
+                        Element.Input.button [] {
+                            onPress = Just <| PokemonCardClicked card.id, 
+                            label = Element.image [Element.width <| Element.px 30, Element.height <| Element.px 30]{
+                            src = if (card.state == Visible) then ("pokemons/" ++ String.fromInt card.pokemonId ++ ".png") else "pokemons/pokeball.png"
                             , description = "The image of a pokemon"
+                            }
                         }
                     )
                 )
