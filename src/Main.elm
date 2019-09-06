@@ -7,6 +7,7 @@ import Html exposing (Html, div, h1, img, text)
 import Html.Attributes exposing (src)
 import Random
 import Random.List
+import List.Extra exposing (groupsOf)
 
 
 ---- MODEL ----
@@ -119,6 +120,8 @@ view model =
                             }
                         }
                     )
+                    |> groupsOf 4
+                    |> List.map (\subList -> Element.column [] subList)
                 )
             , Element.Input.button [] {
                 onPress = Just ShuffleClicked
