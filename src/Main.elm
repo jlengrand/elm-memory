@@ -80,10 +80,9 @@ update msg model =
                 ))
         
         ShuffledFullList fullList ->
-            let
-                cardList = List.indexedMap (\index theId -> {id = index, pokemonId = theId, state = Visible}) fullList 
-            in 
-            ({model | gridReadyPokemonList = cardList}, Cmd.none)
+            (
+                {model | gridReadyPokemonList = List.indexedMap (\index theId -> {id = index, pokemonId = theId, state = Hidden}) fullList 
+            }, Cmd.none)
         PokemonCardClicked cardId -> 
             ( {model | gridReadyPokemonList = flipCardWithId cardId model.gridReadyPokemonList}, Cmd.none )            
         NoOp -> 
