@@ -8,7 +8,8 @@ import Html.Attributes exposing (src)
 import List.Extra exposing (groupsOf)
 import Random
 import Random.List
-
+import Task
+import Delay
 
 
 ---- MODEL ----
@@ -85,6 +86,7 @@ type Msg
     | Shuffled (List Int)
     | ShuffledFullList (List Int)
     | PokemonCardClicked Int
+    | TriggerCardChecks
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -112,13 +114,17 @@ update msg model =
         PokemonCardClicked cardId ->
             let 
                 newSetOfCards = flipCardWithId cardId model.gridReadyPokemonList
-                    |> disableIfTWoFlipped
             in
-            ( { model | gridReadyPokemonList = newSetOfCards }, Cmd.none )
+            ( { model | gridReadyPokemonList = newSetOfCards }, Delay.after 500 Delay.Millisecond TriggerCardChecks )
 
+        TriggerCardChecks ->
+            ( {model | gridReadyPokemonList = disableIfTWoFlipped model.gridReadyPokemonList}, Cmd.none )
         NoOp ->
             ( model, Cmd.none )
 
+run : msg -> Cmd msg
+run m =
+    Task.perform (always m) (Task.succeed ())
 
 numberOfCardsFlipped : List Card -> Int
 numberOfCardsFlipped cards = 
@@ -207,7 +213,6 @@ view model =
                     |> groupsOf 4
                     |> List.map (\subList -> Element.column [] subList)
                 )
-                , Element.text <| String.fromInt <| numberOfCardsFlipped model.gridReadyPokemonList
             , Element.Input.button []
                 { onPress = Just ShuffleClicked
                 , label = Element.text "Shuffle List"
