@@ -37,6 +37,7 @@ numberOfPokemons =
 type CardState
     = Hidden
     | Visible
+    | Found
 
 
 type alias Card =
@@ -109,11 +110,48 @@ update msg model =
             )
 
         PokemonCardClicked cardId ->
-            ( { model | gridReadyPokemonList = flipCardWithId cardId model.gridReadyPokemonList }, Cmd.none )
+            let 
+                newSetOfCards = flipCardWithId cardId model.gridReadyPokemonList
+                    |> disableIfTWoFlipped
+            in
+            ( { model | gridReadyPokemonList = newSetOfCards }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
 
+
+numberOfCardsFlipped : List Card -> Int
+numberOfCardsFlipped cards = 
+    List.foldl 
+        (\c curr -> if c.state == Visible then curr +1 else curr)
+        0
+        cards
+
+checkVisibleCardsHaveSameId : List Card -> Bool
+checkVisibleCardsHaveSameId cards = 
+    List.filter
+        (\c -> c.state == Visible)
+        cards
+    |> List.map 
+            (\c -> c.pokemonId)
+    |> List.Extra.allDifferent
+    |> not
+
+disableIfTWoFlipped : List Card -> List Card
+disableIfTWoFlipped cards =
+    if (numberOfCardsFlipped cards) == 2 then
+        if checkVisibleCardsHaveSameId cards then
+            List.Extra.updateIf
+                (\c -> c.state == Visible) 
+                (\c -> {c | state = Found})
+                cards
+        else
+            List.Extra.updateIf
+                (\c -> c.state == Visible) 
+                (\c -> {c | state = Hidden})
+                cards   
+    else 
+        cards
 
 flipCardWithId : Int -> List Card -> List Card
 flipCardWithId cardId cards =
@@ -125,12 +163,13 @@ flipCardWithId cardId cards =
 
 flipState : CardState -> CardState
 flipState myState =
-    if myState == Visible then
-        Hidden
-
-    else
-        Visible
-
+    case myState of
+        Visible ->
+            Hidden
+        Hidden ->
+            Visible
+        Found ->
+            Found
 
 
 ---- VIEW ----
@@ -154,11 +193,13 @@ view model =
                                 , label =
                                     Element.image [ Element.width <| Element.px 30, Element.height <| Element.px 30 ]
                                         { src =
-                                            if card.state == Visible then
-                                                "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
-
-                                            else
-                                                "pokemons/pokeball.png"
+                                            case card.state of 
+                                                Visible ->
+                                                    "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+                                                Hidden ->
+                                                    "pokemons/pokeball.png"
+                                                Found ->
+                                                    "pokemons/found.png"
                                         , description = "The image of a pokemon"
                                         }
                                 }
@@ -166,6 +207,7 @@ view model =
                     |> groupsOf 4
                     |> List.map (\subList -> Element.column [] subList)
                 )
+                , Element.text <| String.fromInt <| numberOfCardsFlipped model.gridReadyPokemonList
             , Element.Input.button []
                 { onPress = Just ShuffleClicked
                 , label = Element.text "Shuffle List"
