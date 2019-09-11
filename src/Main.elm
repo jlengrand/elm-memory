@@ -10,7 +10,8 @@ import List.Extra exposing (groupsOf)
 import Random
 import Random.List
 import Task
-
+import Browser.Events exposing (onAnimationFrame)
+import Time exposing (Posix)
 
 
 ---- MODEL ----
@@ -50,12 +51,15 @@ type alias Card =
 
 
 type alias Model =
-    { gridReadyPokemonList : List Card }
+    { gridReadyPokemonList : List Card, lastTick : Posix, nextUpdateTick : Posix, shouldUpdate : Bool }
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { gridReadyPokemonList = []
+    , lastTick = Time.millisToPosix 0
+    , nextUpdateTick = Time.millisToPosix 0
+    , shouldUpdate = False
       }
     , Random.generate Shuffled (Random.List.shuffle fullListOfPokemons)
     )
@@ -88,6 +92,7 @@ type Msg
     | ShuffledFullList (List Int)
     | PokemonCardClicked Int
     | TriggerCardChecks
+    | NewFrame Posix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -116,15 +121,28 @@ update msg model =
             let
                 newSetOfCards =
                     flipCardWithId cardId model.gridReadyPokemonList
+                newUpdate = numberOfCardsFlipped newSetOfCards == 2
             in
-            ( { model | gridReadyPokemonList = newSetOfCards }, Delay.after 500 Delay.Millisecond TriggerCardChecks )
+            ( { model | gridReadyPokemonList = newSetOfCards, nextUpdateTick = addToPosix model.lastTick 500, shouldUpdate = newUpdate  }, Cmd.none )
 
         TriggerCardChecks ->
             ( { model | gridReadyPokemonList = disableIfTWoFlipped model.gridReadyPokemonList }, Cmd.none )
 
+        NewFrame tick ->
+            if model.shouldUpdate && (Time.posixToMillis model.nextUpdateTick < Time.posixToMillis tick) then
+                ( {model | lastTick = tick, shouldUpdate = False}, run TriggerCardChecks )
+
+            else
+                ( {model | lastTick = tick}, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
+
+addToPosix : Posix -> Int -> Posix
+addToPosix current toAdd = 
+    Time.posixToMillis current + toAdd
+    |> Time.millisToPosix
 
 run : msg -> Cmd msg
 run m =
@@ -144,11 +162,18 @@ numberOfCardsFlipped cards =
         0
         cards
 
+isCardVisible : Card -> Bool
+isCardVisible card = 
+    card.state == Visible
+
+setCardState : CardState -> Card -> Card
+setCardState newState card = 
+    {card | state = newState}
 
 checkVisibleCardsHaveSameId : List Card -> Bool
 checkVisibleCardsHaveSameId cards =
     List.filter
-        (\c -> c.state == Visible)
+        isCardVisible
         cards
         |> List.map
             (\c -> c.pokemonId)
@@ -161,14 +186,14 @@ disableIfTWoFlipped cards =
     if numberOfCardsFlipped cards == 2 then
         if checkVisibleCardsHaveSameId cards then
             List.Extra.updateIf
-                (\c -> c.state == Visible)
-                (\c -> { c | state = Found })
+                isCardVisible
+                (setCardState Found)
                 cards
 
         else
             List.Extra.updateIf
-                (\c -> c.state == Visible)
-                (\c -> { c | state = Hidden })
+                isCardVisible
+                (setCardState Hidden)
                 cards
 
     else
@@ -214,7 +239,7 @@ view model =
                     |> List.map
                         (\card ->
                             Element.Input.button []
-                                { onPress = Just <| PokemonCardClicked card.id
+                                { onPress = if model.shouldUpdate then Maybe.Nothing else Just <| PokemonCardClicked card.id
                                 , label =
                                     Element.image [ Element.width <| Element.px 30, Element.height <| Element.px 30 ]
                                         { src =
@@ -242,6 +267,9 @@ view model =
         )
 
 
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    onAnimationFrame NewFrame
 
 ---- PROGRAM ----
 
@@ -252,5 +280,5 @@ main =
         { view = view
         , init = \_ -> init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         }
