@@ -1,6 +1,8 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
+import Browser.Events exposing (onAnimationFrame)
+import Delay
 import Element exposing (Element, el)
 import Element.Input
 import Html exposing (Html, div, h1, img, text)
@@ -9,7 +11,8 @@ import List.Extra exposing (groupsOf)
 import Random
 import Random.List
 import Task
-import Delay
+import Time exposing (Posix)
+
 
 
 ---- MODEL ----
@@ -49,12 +52,15 @@ type alias Card =
 
 
 type alias Model =
-    { gridReadyPokemonList : List Card }
+    { gridReadyPokemonList : List Card, lastTick : Posix, updateAt : Posix, update : Bool }
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { gridReadyPokemonList = []
+      , lastTick = Time.millisToPosix 1
+      , updateAt = Time.millisToPosix 0
+      , update = False
       }
     , Random.generate Shuffled (Random.List.shuffle fullListOfPokemons)
     )
@@ -87,6 +93,14 @@ type Msg
     | ShuffledFullList (List Int)
     | PokemonCardClicked Int
     | TriggerCardChecks
+    | UpdateTick Posix
+
+
+addMillisToPosix : Posix -> Int -> Posix
+addMillisToPosix curr toAdd =
+    Time.posixToMillis curr
+        + toAdd
+        |> Time.millisToPosix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -112,58 +126,88 @@ update msg model =
             )
 
         PokemonCardClicked cardId ->
-            let 
-                newSetOfCards = flipCardWithId cardId model.gridReadyPokemonList
+            let
+                newSetOfCards =
+                    flipCardWithId cardId model.gridReadyPokemonList
+
+                newUpdate =
+                    numberOfCardsFlipped newSetOfCards == 2
             in
-            ( { model | gridReadyPokemonList = newSetOfCards }, Delay.after 500 Delay.Millisecond TriggerCardChecks )
+            ( { model | gridReadyPokemonList = newSetOfCards, updateAt = addMillisToPosix model.lastTick 500, update = newUpdate }, Cmd.none )
 
         TriggerCardChecks ->
-            ( {model | gridReadyPokemonList = disableIfTWoFlipped model.gridReadyPokemonList}, Cmd.none )
+            ( { model | gridReadyPokemonList = disableIfTWoFlipped model.gridReadyPokemonList }, Cmd.none )
+
+        UpdateTick tick ->
+            if model.update && (Time.posixToMillis model.lastTick > Time.posixToMillis model.updateAt) then
+                ( { model | lastTick = tick, update = False }, run TriggerCardChecks )
+
+            else
+                ( { model | lastTick = tick }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
 
 run : msg -> Cmd msg
 run m =
     Task.perform (always m) (Task.succeed ())
 
+
 numberOfCardsFlipped : List Card -> Int
-numberOfCardsFlipped cards = 
-    List.foldl 
-        (\c curr -> if c.state == Visible then curr +1 else curr)
+numberOfCardsFlipped cards =
+    List.foldl
+        (\c curr ->
+            if c.state == Visible then
+                curr + 1
+
+            else
+                curr
+        )
         0
         cards
 
+
 checkVisibleCardsHaveSameId : List Card -> Bool
-checkVisibleCardsHaveSameId cards = 
+checkVisibleCardsHaveSameId cards =
     List.filter
         (\c -> c.state == Visible)
         cards
-    |> List.map 
+        |> List.map
             (\c -> c.pokemonId)
-    |> List.Extra.allDifferent
-    |> not
+        |> List.Extra.allDifferent
+        |> not
+
+
+isStateVisible : Card -> Bool
+isStateVisible card =
+    card.state == Visible
+
 
 disableIfTWoFlipped : List Card -> List Card
 disableIfTWoFlipped cards =
-    if (numberOfCardsFlipped cards) == 2 then
+    if numberOfCardsFlipped cards == 2 then
         if checkVisibleCardsHaveSameId cards then
             List.Extra.updateIf
-                (\c -> c.state == Visible) 
-                (\c -> {c | state = Found})
+                (\c -> c.state == Visible)
+                (\c -> { c | state = Found })
                 cards
+
         else
             List.Extra.updateIf
-                (\c -> c.state == Visible) 
-                (\c -> {c | state = Hidden})
-                cards   
-    else 
+                (\c -> c.state == Visible)
+                (\c -> { c | state = Hidden })
+                cards
+
+    else
         cards
+
 
 flipCardWithId : Int -> List Card -> List Card
 flipCardWithId cardId cards =
-    List.Extra.updateIf 
-        (\c -> c.id == cardId) 
-        (\c -> { c | state = flipState c.state }) 
+    List.Extra.updateIf
+        (\c -> c.id == cardId)
+        (\c -> { c | state = flipState c.state })
         cards
 
 
@@ -172,10 +216,13 @@ flipState myState =
     case myState of
         Visible ->
             Hidden
+
         Hidden ->
             Visible
+
         Found ->
             Found
+
 
 
 ---- VIEW ----
@@ -195,15 +242,22 @@ view model =
                     |> List.map
                         (\card ->
                             Element.Input.button []
-                                { onPress = Just <| PokemonCardClicked card.id
+                                { onPress =
+                                    if model.update == True then
+                                        Maybe.Nothing
+
+                                    else
+                                        Just <| PokemonCardClicked card.id
                                 , label =
                                     Element.image [ Element.width <| Element.px 30, Element.height <| Element.px 30 ]
                                         { src =
-                                            case card.state of 
+                                            case card.state of
                                                 Visible ->
                                                     "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+
                                                 Hidden ->
                                                     "pokemons/pokeball.png"
+
                                                 Found ->
                                                     "pokemons/found.png"
                                         , description = "The image of a pokemon"
@@ -221,6 +275,11 @@ view model =
         )
 
 
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    onAnimationFrame UpdateTick
+
+
 
 ---- PROGRAM ----
 
@@ -231,5 +290,5 @@ main =
         { view = view
         , init = \_ -> init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         }
