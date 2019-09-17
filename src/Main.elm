@@ -291,7 +291,7 @@ view model =
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
-                                Element.el [ Element.explain Debug.todo, Element.height <| Element.fillPortion 1, Element.width <| Element.fillPortion 1 ] <|
+                                Element.el [ Element.height <| Element.fillPortion 1, Element.width <| Element.fillPortion 1 ] <|
                                     Element.Input.button [ Element.height Element.fill, Element.width Element.fill ]
                                         { onPress =
                                             if model.shouldUpdate then
