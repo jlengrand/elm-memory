@@ -2,8 +2,6 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Browser.Events exposing (onAnimationFrame)
-import Debug
-import Delay
 import Element exposing (Element, el)
 import Element.Background
 import Element.Font
