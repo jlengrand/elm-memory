@@ -321,7 +321,7 @@ view model =
                                         }
                             )
                         |> groupsOf 4
-                        |> List.map (\subList -> Element.column [] subList)
+                        |> List.map (\subList -> Element.column [ Element.height Element.fill, Element.width Element.fill ] subList)
                     )
                 , Element.row
                     [ Element.height Element.fill
