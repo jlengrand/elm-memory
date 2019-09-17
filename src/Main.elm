@@ -291,7 +291,7 @@ view model =
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
-                                Element.el [ Element.height <| Element.fillPortion 1, Element.width <| Element.fillPortion 1 ] <|
+                                Element.el [ Element.height Element.fill, Element.width Element.fill ] <|
                                     Element.Input.button [ Element.height Element.fill, Element.width Element.fill ]
                                         { onPress =
                                             if model.shouldUpdate then
@@ -303,8 +303,8 @@ view model =
                                             Element.image
                                                 [ -- Element.width <| Element.px 30
                                                   -- , Element.height <| Element.px 30
-                                                  Element.height Element.fill
-                                                , Element.width Element.fill
+                                                  Element.height Element.shrink
+                                                , Element.width Element.shrink
                                                 ]
                                                 { src =
                                                     case card.state of
