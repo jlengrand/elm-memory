@@ -49,6 +49,14 @@ yellowPokemon =
     Element.rgb255 255 246 164
 
 
+whitePokemon =
+    Element.rgb255 255 255 255
+
+
+brownPokemon =
+    Element.rgb255 98 49 8
+
+
 type CardState
     = Hidden
     | Visible
@@ -246,7 +254,7 @@ flipState myState =
 
 view : Model -> Html Msg
 view model =
-    Element.layout [ Element.width Element.fill, Element.height Element.fill, Element.explain Debug.todo ]
+    Element.layout [ Element.width Element.fill, Element.height Element.fill ]
         (Element.column [ Element.width Element.fill, Element.height Element.fill ]
             [ Element.row
                 [ Element.width Element.fill
@@ -285,36 +293,48 @@ view model =
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
-                                Element.Input.button []
-                                    { onPress =
-                                        if model.shouldUpdate then
-                                            Maybe.Nothing
+                                Element.el [ Element.explain Debug.todo, Element.height <| Element.fillPortion 1, Element.width <| Element.fillPortion 1 ] <|
+                                    Element.Input.button [ Element.height Element.fill, Element.width Element.fill ]
+                                        { onPress =
+                                            if model.shouldUpdate then
+                                                Maybe.Nothing
 
-                                        else
-                                            Just <| PokemonCardClicked card.id
-                                    , label =
-                                        Element.image [ Element.width <| Element.px 30, Element.height <| Element.px 30 ]
-                                            { src =
-                                                case card.state of
-                                                    Visible ->
-                                                        "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+                                            else
+                                                Just <| PokemonCardClicked card.id
+                                        , label =
+                                            Element.image
+                                                [ -- Element.width <| Element.px 30
+                                                  -- , Element.height <| Element.px 30
+                                                  Element.height Element.fill
+                                                , Element.width Element.fill
+                                                ]
+                                                { src =
+                                                    case card.state of
+                                                        Visible ->
+                                                            "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
-                                                    Hidden ->
-                                                        "pokemons/pokeball.png"
+                                                        Hidden ->
+                                                            "pokemons/pokeball.png"
 
-                                                    Found ->
-                                                        "pokemons/found.png"
-                                            , description = "The image of a pokemon"
-                                            }
-                                    }
+                                                        Found ->
+                                                            "pokemons/found.png"
+                                                , description = "The image of a pokemon"
+                                                }
+                                        }
                             )
                         |> groupsOf 4
                         |> List.map (\subList -> Element.column [] subList)
                     )
-                , Element.Input.button []
-                    { onPress = Just ShuffleClicked
-                    , label = Element.text "Shuffle List"
-                    }
+                , Element.row
+                    [ Element.height Element.fill
+                    , Element.width Element.fill
+                    , Element.Background.color whitePokemon
+                    ]
+                    [ Element.Input.button []
+                        { onPress = Just ShuffleClicked
+                        , label = Element.text "Shuffle List"
+                        }
+                    ]
                 ]
             , Element.row
                 [ Element.width Element.fill
