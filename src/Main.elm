@@ -266,13 +266,15 @@ view model =
         }
         [ Element.width Element.fill
         , Element.height Element.fill
-        , Element.explain Debug.todo
         ]
-        (Element.column []
+        (Element.column
+            [ Element.width Element.fill
+            , Element.height Element.fill
+            ]
             [ Element.row
                 [ Element.Background.color redPokemon
                 , Element.width Element.fill
-                , Element.height <| Element.fillPortion 2
+                , Element.height <| Element.px 50
                 ]
                 [ Element.image
                     [ Element.height <| Element.px 30
@@ -301,19 +303,21 @@ view model =
                     Element.text "PokeMemory"
                 ]
             , Element.column
-                [ Element.height <| Element.fillPortion 6
+                [ Element.width Element.fill
+                , Element.height Element.fill
                 ]
-                [ Element.row [ Element.width Element.fill ]
+                [ Element.row [ Element.width Element.fill, Element.height Element.fill ]
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
                                 Element.el
                                     [ Element.width Element.fill
+                                    , Element.height Element.fill
                                     ]
                                 <|
                                     Element.Input.button
-                                        [ Element.centerX
-                                        , Element.centerY
+                                        [ Element.width Element.fill
+                                        , Element.height Element.fill
                                         ]
                                         { onPress =
                                             if model.shouldUpdate then
@@ -324,23 +328,20 @@ view model =
                                         , label =
                                             Element.el
                                                 [ Element.width Element.fill
+                                                , Element.height Element.fill
+                                                , Element.Background.uncropped <|
+                                                    case card.state of
+                                                        Visible ->
+                                                            "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+
+                                                        Hidden ->
+                                                            "pokemons/pokeball31.png"
+
+                                                        Found ->
+                                                            "pokemons/badge31.png"
                                                 ]
                                             <|
-                                                Element.image
-                                                    [ Element.width Element.fill
-                                                    ]
-                                                    { src =
-                                                        case card.state of
-                                                            Visible ->
-                                                                "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
-
-                                                            Hidden ->
-                                                                "pokemons/pokeball31.png"
-
-                                                            Found ->
-                                                                "pokemons/badge31.png"
-                                                    , description = "The image of a pokemon"
-                                                    }
+                                                Element.none
                                         }
                             )
                         |> groupsOf 4
@@ -373,7 +374,7 @@ view model =
                 ]
             , Element.row
                 [ Element.width Element.fill
-                , Element.height (Element.fillPortion 2)
+                , Element.height <| Element.px 50
                 , Element.Background.color redPokemon
                 , Element.alignBottom
                 ]
@@ -385,7 +386,9 @@ view model =
                     , Element.Font.center
                     ]
                   <|
-                    Element.text "Created in Elm by Julien Lengrand-Lambert on Twitch, live"
+                    Element.paragraph []
+                        [ Element.text "Created in Elm by Julien Lengrand-Lambert on Twitch, live"
+                        ]
                 ]
             ]
         )
