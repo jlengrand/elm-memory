@@ -388,7 +388,7 @@ view model =
                     Element.paragraph []
                         [ Element.text "Built in Elm on Twitch - "
                         , Element.newTabLink [ Element.Font.underline ]
-                            { url = "https://youtu.be/oPInjDtCmro"
+                            { url = "https://www.youtube.com/watch?v=oPInjDtCmro&list=PLyB9ax65kmeygt9fCmQ3yy3Q6ar5MpUub"
                             , label = Element.text "jlengrand"
                             }
                         ]
