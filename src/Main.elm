@@ -2,6 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Browser.Events exposing (onAnimationFrame)
+import Debug
 import Element exposing (Element, el)
 import Element.Background
 import Element.Border
@@ -263,42 +264,43 @@ view model =
                 }
             ]
         }
-        [ Element.width Element.fill, Element.height Element.fill ]
-        (Element.column [ Element.width Element.fill, Element.height Element.fill ]
-            [ Element.row
-                [ Element.width Element.fill
-                , Element.height <|
-                    Element.px 50
-                , Element.Background.color redPokemon
-                ]
-                [ Element.image
-                    [ Element.height <| Element.px 30
-                    , Element.paddingEach
-                        { top = 0
-                        , right = 0
-                        , bottom = 0
-                        , left = 10
-                        }
-                    ]
-                    { src = "logo-yellow.svg"
-                    , description = "The Elm Logo"
-                    }
-                , Element.el
-                    [ Element.paddingEach
-                        { top = 0
-                        , right = 0
-                        , bottom = 0
-                        , left = 10
-                        }
-                    , Element.Font.color yellowPokemon
-                    , Element.Font.size 26
-                    , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
-                    ]
-                  <|
-                    Element.text "PokeMemory"
-                ]
-            , Element.column [ Element.width Element.fill, Element.height Element.fill ]
-                [ Element.row [ Element.height Element.fill, Element.width Element.fill ]
+        [ Element.width Element.fill, Element.height Element.fill, Element.explain Debug.todo ]
+        (Element.column []
+            [ -- [ Element.row
+              --     [ Element.width Element.fill
+              --     , Element.height <|
+              --         Element.px 50
+              --     , Element.Background.color redPokemon
+              --     ]
+              --     [ Element.image
+              --         [ Element.height <| Element.px 30
+              --         , Element.paddingEach
+              --             { top = 0
+              --             , right = 0
+              --             , bottom = 0
+              --             , left = 10
+              --             }
+              --         ]
+              --         { src = "logo-yellow.svg"
+              --         , description = "The Elm Logo"
+              --         }
+              --     , Element.el
+              --         [ Element.paddingEach
+              --             { top = 0
+              --             , right = 0
+              --             , bottom = 0
+              --             , left = 10
+              --             }
+              --         , Element.Font.color yellowPokemon
+              --         , Element.Font.size 26
+              --         , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
+              --         ]
+              --       <|
+              --         Element.text "PokeMemory"
+              --     ]
+              Element.column
+                []
+                [ Element.row []
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
@@ -366,23 +368,25 @@ view model =
                         }
                     ]
                 ]
-            , Element.row
-                [ Element.width Element.fill
-                , Element.height <|
-                    Element.px 50
-                , Element.Background.color redPokemon
-                , Element.alignBottom
-                ]
-                [ Element.el
-                    [ Element.Font.color yellowPokemon
-                    , Element.Font.family [ Element.Font.typeface "Titillium" ]
-                    , Element.Font.size 16
-                    , Element.width Element.fill
-                    , Element.Font.center
-                    ]
-                  <|
-                    Element.text "Created in Elm by Julien Lengrand-Lambert on Twitch, live"
-                ]
+
+            -- , Element.row
+            --     [ Element.width Element.fill
+            --     , Element.height <|
+            --         Element.px 50
+            --     , Element.Background.color redPokemon
+            --     , Element.alignBottom
+            --     ]
+            --     [ Element.el
+            --         [ Element.Font.color yellowPokemon
+            --         , Element.Font.family [ Element.Font.typeface "Titillium" ]
+            --         , Element.Font.size 16
+            --         , Element.width Element.fill
+            --         , Element.Font.center
+            --         ]
+            --       <|
+            --         Element.text "Created in Elm by Julien Lengrand-Lambert on Twitch, live"
+            --     ]
+            -- ]
             ]
         )
 
