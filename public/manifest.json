@@ -1,15 +1,15 @@
 {
-  "short_name": "Elm App",
-  "name": "Create Elm App Sample",
+  "short_name": "PokeMemory",
+  "name": "A Pokemon Memory game, built in Elm",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "192x192",
+      "src": "favicon2.ico",
+      "sizes": "256x256",
       "type": "image/png"
     }
   ],
   "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#fff6a4",
+  "background_color": "#c52018"
 }
