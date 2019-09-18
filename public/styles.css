@@ -1,0 +1,19 @@
+@font-face {
+  font-family: "PokemonHollow";
+  src: url("fonts/Pokemon\ Hollow.ttf");
+}
+
+@font-face {
+  font-family: "PokemonSolid";
+  src: url("fonts/Pokemon\ Solid.ttf");
+}
+
+@font-face {
+  font-family: "Titillium";
+  src: url("fonts/TitilliumWeb-Regular.ttf");
+}
+
+div[data-elm-hot] {
+  /* width: 100%; */
+  height: 100vh;
+}

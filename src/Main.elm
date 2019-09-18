@@ -1,8 +1,11 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Delay
+import Browser.Events exposing (onAnimationFrame)
 import Element exposing (Element, el)
+import Element.Background
+import Element.Border
+import Element.Font
 import Element.Input
 import Html exposing (Html, div, h1, img, text)
 import Html.Attributes exposing (src)
@@ -10,8 +13,8 @@ import List.Extra exposing (groupsOf)
 import Random
 import Random.List
 import Task
-import Browser.Events exposing (onAnimationFrame)
 import Time exposing (Posix)
+
 
 
 ---- MODEL ----
@@ -37,6 +40,22 @@ numberOfPokemons =
     13
 
 
+redPokemon =
+    Element.rgb255 197 32 24
+
+
+yellowPokemon =
+    Element.rgb255 255 246 164
+
+
+whitePokemon =
+    Element.rgb255 255 255 255
+
+
+brownPokemon =
+    Element.rgb255 98 49 8
+
+
 type CardState
     = Hidden
     | Visible
@@ -57,9 +76,9 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( { gridReadyPokemonList = []
-    , lastTick = Time.millisToPosix 0
-    , nextUpdateTick = Time.millisToPosix 0
-    , shouldUpdate = False
+      , lastTick = Time.millisToPosix 0
+      , nextUpdateTick = Time.millisToPosix 0
+      , shouldUpdate = False
       }
     , Random.generate Shuffled (Random.List.shuffle fullListOfPokemons)
     )
@@ -121,28 +140,32 @@ update msg model =
             let
                 newSetOfCards =
                     flipCardWithId cardId model.gridReadyPokemonList
-                newUpdate = numberOfCardsFlipped newSetOfCards == 2
+
+                newUpdate =
+                    numberOfCardsFlipped newSetOfCards == 2
             in
-            ( { model | gridReadyPokemonList = newSetOfCards, nextUpdateTick = addToPosix model.lastTick 500, shouldUpdate = newUpdate  }, Cmd.none )
+            ( { model | gridReadyPokemonList = newSetOfCards, nextUpdateTick = addToPosix model.lastTick 500, shouldUpdate = newUpdate }, Cmd.none )
 
         TriggerCardChecks ->
             ( { model | gridReadyPokemonList = disableIfTWoFlipped model.gridReadyPokemonList }, Cmd.none )
 
         NewFrame tick ->
             if model.shouldUpdate && (Time.posixToMillis model.nextUpdateTick < Time.posixToMillis tick) then
-                ( {model | lastTick = tick, shouldUpdate = False}, run TriggerCardChecks )
+                ( { model | lastTick = tick, shouldUpdate = False }, run TriggerCardChecks )
 
             else
-                ( {model | lastTick = tick}, Cmd.none )
+                ( { model | lastTick = tick }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
 
 
 addToPosix : Posix -> Int -> Posix
-addToPosix current toAdd = 
-    Time.posixToMillis current + toAdd
-    |> Time.millisToPosix
+addToPosix current toAdd =
+    Time.posixToMillis current
+        + toAdd
+        |> Time.millisToPosix
+
 
 run : msg -> Cmd msg
 run m =
@@ -162,13 +185,16 @@ numberOfCardsFlipped cards =
         0
         cards
 
+
 isCardVisible : Card -> Bool
-isCardVisible card = 
+isCardVisible card =
     card.state == Visible
 
+
 setCardState : CardState -> Card -> Card
-setCardState newState card = 
-    {card | state = newState}
+setCardState newState card =
+    { card | state = newState }
+
 
 checkVisibleCardsHaveSameId : List Card -> Bool
 checkVisibleCardsHaveSameId cards =
@@ -227,42 +253,146 @@ flipState myState =
 
 view : Model -> Html Msg
 view model =
-    Element.layout []
-        (Element.column []
-            [ Element.image [ Element.width <| Element.px 300, Element.height <| Element.px 300 ]
-                { src = "logo.svg"
-                , description = "The Elm Logo"
+    Element.layoutWith
+        { options =
+            [ Element.noHover
+            , Element.focusStyle
+                { borderColor = Maybe.Nothing
+                , backgroundColor = Maybe.Nothing
+                , shadow = Maybe.Nothing
                 }
-            , Element.text "Our memory game"
-            , Element.row []
-                (model.gridReadyPokemonList
-                    |> List.map
-                        (\card ->
-                            Element.Input.button []
-                                { onPress = if model.shouldUpdate then Maybe.Nothing else Just <| PokemonCardClicked card.id
-                                , label =
-                                    Element.image [ Element.width <| Element.px 30, Element.height <| Element.px 30 ]
-                                        { src =
-                                            case card.state of
-                                                Visible ->
-                                                    "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+            ]
+        }
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        ]
+        (Element.column
+            [ Element.width Element.fill
+            , Element.height Element.fill
+            ]
+            [ Element.row
+                [ Element.Background.color redPokemon
+                , Element.width Element.fill
+                , Element.height <| Element.px 60
+                ]
+                [ Element.image
+                    [ Element.height <| Element.px 30
+                    , Element.paddingEach
+                        { top = 0
+                        , right = 0
+                        , bottom = 0
+                        , left = 10
+                        }
+                    ]
+                    { src = "logo-yellow.svg"
+                    , description = "The Elm Logo"
+                    }
+                , Element.el
+                    [ Element.paddingEach
+                        { top = 0
+                        , right = 0
+                        , bottom = 0
+                        , left = 10
+                        }
+                    , Element.Font.color yellowPokemon
+                    , Element.Font.size 26
+                    , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
+                    ]
+                  <|
+                    Element.text "PokeMemory"
+                ]
+            , Element.column
+                [ Element.width Element.fill
+                , Element.height Element.fill
+                ]
+                [ Element.row [ Element.width Element.fill, Element.height Element.fill ]
+                    (model.gridReadyPokemonList
+                        |> List.map
+                            (\card ->
+                                Element.el
+                                    [ Element.width Element.fill
+                                    , Element.height Element.fill
+                                    ]
+                                <|
+                                    Element.Input.button
+                                        [ Element.width Element.fill
+                                        , Element.height Element.fill
+                                        ]
+                                        { onPress =
+                                            if model.shouldUpdate then
+                                                Maybe.Nothing
 
-                                                Hidden ->
-                                                    "pokemons/pokeball.png"
+                                            else
+                                                Just <| PokemonCardClicked card.id
+                                        , label =
+                                            Element.el
+                                                [ Element.width Element.fill
+                                                , Element.height Element.fill
+                                                , Element.Background.uncropped <|
+                                                    case card.state of
+                                                        Visible ->
+                                                            "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
-                                                Found ->
-                                                    "pokemons/found.png"
-                                        , description = "The image of a pokemon"
+                                                        Hidden ->
+                                                            "pokemons/pokeball31.png"
+
+                                                        Found ->
+                                                            "pokemons/badge31.png"
+                                                ]
+                                            <|
+                                                Element.none
                                         }
-                                }
-                        )
-                    |> groupsOf 4
-                    |> List.map (\subList -> Element.column [] subList)
-                )
-            , Element.Input.button []
-                { onPress = Just ShuffleClicked
-                , label = Element.text "Shuffle List"
-                }
+                            )
+                        |> groupsOf 4
+                        |> List.map (\subList -> Element.column [ Element.height Element.fill, Element.width Element.fill ] subList)
+                    )
+                , Element.row
+                    [ Element.width Element.fill
+                    , Element.Background.color whitePokemon
+                    , Element.paddingEach
+                        { top = 10
+                        , right = 0
+                        , bottom = 10
+                        , left = 0
+                        }
+                    ]
+                    [ Element.Input.button [ Element.centerX, Element.centerY ]
+                        { onPress = Just ShuffleClicked
+                        , label =
+                            Element.el
+                                [ Element.Font.color yellowPokemon
+                                , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
+                                , Element.Background.color redPokemon
+                                , Element.paddingXY 15 20
+                                , Element.Border.rounded 20
+                                ]
+                            <|
+                                Element.text "New game!"
+                        }
+                    ]
+                ]
+            , Element.row
+                [ Element.width Element.fill
+                , Element.height <| Element.px 60
+                , Element.Background.color redPokemon
+                , Element.alignBottom
+                ]
+                [ Element.el
+                    [ Element.Font.color yellowPokemon
+                    , Element.Font.family [ Element.Font.typeface "Titillium" ]
+                    , Element.Font.size 16
+                    , Element.width Element.fill
+                    , Element.Font.center
+                    ]
+                  <|
+                    Element.paragraph []
+                        [ Element.text "Built in Elm on Twitch - "
+                        , Element.newTabLink [ Element.Font.underline ]
+                            { url = "https://youtu.be/oPInjDtCmro"
+                            , label = Element.text "jlengrand"
+                            }
+                        ]
+                ]
             ]
         )
 
@@ -270,6 +400,8 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     onAnimationFrame NewFrame
+
+
 
 ---- PROGRAM ----
 
