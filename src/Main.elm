@@ -273,7 +273,7 @@ view model =
             [ Element.row
                 [ Element.Background.color redPokemon
                 , Element.width Element.fill
-                , Element.height <| Element.px 50
+                , Element.height <| Element.px 60
                 ]
                 [ Element.image
                     [ Element.height <| Element.px 30
@@ -373,7 +373,7 @@ view model =
                 ]
             , Element.row
                 [ Element.width Element.fill
-                , Element.height <| Element.px 50
+                , Element.height <| Element.px 60
                 , Element.Background.color redPokemon
                 , Element.alignBottom
                 ]
@@ -386,7 +386,11 @@ view model =
                     ]
                   <|
                     Element.paragraph []
-                        [ Element.text "Made in Elm on Twitch - jlengrand"
+                        [ Element.text "Built in Elm on Twitch - "
+                        , Element.newTabLink [ Element.Font.underline ]
+                            { url = "https://youtu.be/oPInjDtCmro"
+                            , label = Element.text "jlengrand"
+                            }
                         ]
                 ]
             ]
