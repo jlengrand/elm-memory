@@ -335,10 +335,10 @@ view model =
                                                                 "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
                                                             Hidden ->
-                                                                "pokemons/pokeball2.png"
+                                                                "pokemons/pokeball31.png"
 
                                                             Found ->
-                                                                "pokemons/found.png"
+                                                                "pokemons/badge31.png"
                                                     , description = "The image of a pokemon"
                                                     }
                                         }
