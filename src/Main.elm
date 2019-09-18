@@ -2,7 +2,6 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Browser.Events exposing (onAnimationFrame)
-import Debug
 import Element exposing (Element, el)
 import Element.Background
 import Element.Border
@@ -364,7 +363,7 @@ view model =
                                 [ Element.Font.color yellowPokemon
                                 , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
                                 , Element.Background.color redPokemon
-                                , Element.paddingXY 10 20
+                                , Element.paddingXY 15 20
                                 , Element.Border.rounded 20
                                 ]
                             <|
@@ -387,7 +386,7 @@ view model =
                     ]
                   <|
                     Element.paragraph []
-                        [ Element.text "Created in Elm by Julien Lengrand-Lambert on Twitch, live"
+                        [ Element.text "Made in Elm on Twitch - jlengrand"
                         ]
                 ]
             ]
