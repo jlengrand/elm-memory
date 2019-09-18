@@ -4,6 +4,7 @@ import Browser
 import Browser.Events exposing (onAnimationFrame)
 import Element exposing (Element, el)
 import Element.Background
+import Element.Border
 import Element.Font
 import Element.Input
 import Html exposing (Html, div, h1, img, text)
@@ -252,7 +253,17 @@ flipState myState =
 
 view : Model -> Html Msg
 view model =
-    Element.layout [ Element.width Element.fill, Element.height Element.fill ]
+    Element.layoutWith
+        { options =
+            [ Element.noHover
+            , Element.focusStyle
+                { borderColor = Maybe.Nothing
+                , backgroundColor = Maybe.Nothing
+                , shadow = Maybe.Nothing
+                }
+            ]
+        }
+        [ Element.width Element.fill, Element.height Element.fill ]
         (Element.column [ Element.width Element.fill, Element.height Element.fill ]
             [ Element.row
                 [ Element.width Element.fill
@@ -291,8 +302,15 @@ view model =
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
-                                Element.el [ Element.height Element.fill, Element.width Element.fill ] <|
-                                    Element.Input.button [ Element.height Element.fill, Element.width Element.fill ]
+                                Element.el
+                                    [ Element.height Element.fill
+                                    , Element.width Element.fill
+                                    ]
+                                <|
+                                    Element.Input.button
+                                        [ Element.centerX
+                                        , Element.centerY
+                                        ]
                                         { onPress =
                                             if model.shouldUpdate then
                                                 Maybe.Nothing
@@ -300,22 +318,23 @@ view model =
                                             else
                                                 Just <| PokemonCardClicked card.id
                                         , label =
-                                            Element.image
-                                                [ Element.height Element.fill
-                                                , Element.width Element.fill
-                                                ]
-                                                { src =
-                                                    case card.state of
-                                                        Visible ->
-                                                            "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+                                            Element.el [ Element.height Element.fill, Element.width Element.fill ] <|
+                                                Element.image
+                                                    [ Element.height Element.fill
+                                                    , Element.width Element.fill
+                                                    ]
+                                                    { src =
+                                                        case card.state of
+                                                            Visible ->
+                                                                "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
-                                                        Hidden ->
-                                                            "pokemons/pokeball2.png"
+                                                            Hidden ->
+                                                                "pokemons/pokeball2.png"
 
-                                                        Found ->
-                                                            "pokemons/found.png"
-                                                , description = "The image of a pokemon"
-                                                }
+                                                            Found ->
+                                                                "pokemons/found.png"
+                                                    , description = "The image of a pokemon"
+                                                    }
                                         }
                             )
                         |> groupsOf 4
@@ -325,10 +344,25 @@ view model =
                     [ Element.height Element.fill
                     , Element.width Element.fill
                     , Element.Background.color whitePokemon
+                    , Element.paddingEach
+                        { top = 10
+                        , right = 0
+                        , bottom = 10
+                        , left = 0
+                        }
                     ]
-                    [ Element.Input.button []
+                    [ Element.Input.button [ Element.centerX, Element.centerY ]
                         { onPress = Just ShuffleClicked
-                        , label = Element.text "Shuffle List"
+                        , label =
+                            Element.el
+                                [ Element.Font.color yellowPokemon
+                                , Element.Font.family [ Element.Font.typeface "PokemonHollow" ]
+                                , Element.Background.color redPokemon
+                                , Element.paddingXY 10 20
+                                , Element.Border.rounded 20
+                                ]
+                            <|
+                                Element.text "New game!"
                         }
                     ]
                 ]
