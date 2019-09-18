@@ -301,10 +301,8 @@ view model =
                                                 Just <| PokemonCardClicked card.id
                                         , label =
                                             Element.image
-                                                [ -- Element.width <| Element.px 30
-                                                  -- , Element.height <| Element.px 30
-                                                  Element.height Element.shrink
-                                                , Element.width Element.shrink
+                                                [ Element.height Element.fill
+                                                , Element.width Element.fill
                                                 ]
                                                 { src =
                                                     case card.state of
@@ -312,7 +310,7 @@ view model =
                                                             "pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
                                                         Hidden ->
-                                                            "pokemons/pokeball.png"
+                                                            "pokemons/pokeball2.png"
 
                                                         Found ->
                                                             "pokemons/found.png"
