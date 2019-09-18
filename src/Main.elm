@@ -2,6 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Browser.Events exposing (onAnimationFrame)
+import Debug
 import Element exposing (Element, el)
 import Element.Background
 import Element.Border
@@ -263,13 +264,15 @@ view model =
                 }
             ]
         }
-        [ Element.width Element.fill, Element.height Element.fill ]
-        (Element.column [ Element.width Element.fill, Element.height Element.fill ]
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.explain Debug.todo
+        ]
+        (Element.column []
             [ Element.row
-                [ Element.width Element.fill
-                , Element.height <|
-                    Element.px 50
-                , Element.Background.color redPokemon
+                [ Element.Background.color redPokemon
+                , Element.width Element.fill
+                , Element.height <| Element.fillPortion 2
                 ]
                 [ Element.image
                     [ Element.height <| Element.px 30
@@ -297,14 +300,15 @@ view model =
                   <|
                     Element.text "PokeMemory"
                 ]
-            , Element.column [ Element.width Element.fill, Element.height Element.fill ]
-                [ Element.row [ Element.height Element.fill, Element.width Element.fill ]
+            , Element.column
+                [ Element.height <| Element.fillPortion 6
+                ]
+                [ Element.row [ Element.width Element.fill ]
                     (model.gridReadyPokemonList
                         |> List.map
                             (\card ->
                                 Element.el
-                                    [ Element.height Element.fill
-                                    , Element.width Element.fill
+                                    [ Element.width Element.fill
                                     ]
                                 <|
                                     Element.Input.button
@@ -318,10 +322,12 @@ view model =
                                             else
                                                 Just <| PokemonCardClicked card.id
                                         , label =
-                                            Element.el [ Element.height Element.fill, Element.width Element.fill ] <|
+                                            Element.el
+                                                [ Element.width Element.fill
+                                                ]
+                                            <|
                                                 Element.image
-                                                    [ Element.height Element.fill
-                                                    , Element.width Element.fill
+                                                    [ Element.width Element.fill
                                                     ]
                                                     { src =
                                                         case card.state of
@@ -341,8 +347,7 @@ view model =
                         |> List.map (\subList -> Element.column [ Element.height Element.fill, Element.width Element.fill ] subList)
                     )
                 , Element.row
-                    [ Element.height Element.fill
-                    , Element.width Element.fill
+                    [ Element.width Element.fill
                     , Element.Background.color whitePokemon
                     , Element.paddingEach
                         { top = 10
@@ -368,8 +373,7 @@ view model =
                 ]
             , Element.row
                 [ Element.width Element.fill
-                , Element.height <|
-                    Element.px 50
+                , Element.height (Element.fillPortion 2)
                 , Element.Background.color redPokemon
                 , Element.alignBottom
                 ]
