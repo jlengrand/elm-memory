@@ -1,7 +1,7 @@
 {
-  "name": "elm-memory",
+  "name": "pokememory",
   "version": "1.0.0",
-  "description": "This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).",
+  "description": "A Pokemon Memory game, built in Elm",
   "main": "index.js",
   "directories": {
     "test": "tests"
