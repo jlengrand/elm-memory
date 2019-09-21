@@ -331,13 +331,13 @@ view model =
                                                 , Element.Background.uncropped <|
                                                     case card.state of
                                                         Visible ->
-                                                            "/pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
+                                                            "static/public/pokemons/" ++ String.fromInt card.pokemonId ++ ".png"
 
                                                         Hidden ->
-                                                            "/pokemons/pokeball31.png"
+                                                            "static/public/pokemons/pokeball31.png"
 
                                                         Found ->
-                                                            "/pokemons/badge31.png"
+                                                            "static/public/pokemons/badge31.png"
                                                 ]
                                             <|
                                                 Element.none
