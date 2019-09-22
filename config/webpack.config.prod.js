@@ -322,8 +322,8 @@ module.exports = {
       skipWaiting: true,
       runtimeCaching: [
         {
-          urlPattern: ".+",
-          handler: "StaleWhileRevalidate"
+          urlPattern: "/pokemons/.+",
+          handler: "CacheFirst"
         }
       ],
       globDirectory: ".",
