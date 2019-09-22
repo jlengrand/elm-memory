@@ -1,22 +1,23 @@
-'use strict';
+"use strict";
 
-const autoprefixer = require('autoprefixer');
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
-const paths = require('../config/paths');
-const getClientEnvironment = require('./env');
+const autoprefixer = require("autoprefixer");
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
+const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
+// const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
+const paths = require("../config/paths");
+const getClientEnvironment = require("./env");
+const workboxPlugin = require("workbox-webpack-plugin");
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
 // Source maps are resource heavy and can cause out of memory issue for large source files.
-const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
@@ -24,31 +25,31 @@ const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
-const useDebugger = process.env.ELM_DEBUGGER === 'true' ? true : false;
+const useDebugger = process.env.ELM_DEBUGGER === "true" ? true : false;
 
 // Enable users to turn on dead code elimination.
 const deadCodeElimination =
-  process.env.DEAD_CODE_ELIMINATION === 'true'
+  process.env.DEAD_CODE_ELIMINATION === "true"
     ? {
         dead_code: true,
         pure_funcs: [
-          '_elm_lang$core$Native_Utils.update',
-          'A2',
-          'A3',
-          'A4',
-          'A5',
-          'A6',
-          'A7',
-          'A8',
-          'A9',
-          'F2',
-          'F3',
-          'F4',
-          'F5',
-          'F6',
-          'F7',
-          'F8',
-          'F9'
+          "_elm_lang$core$Native_Utils.update",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8",
+          "A9",
+          "F2",
+          "F3",
+          "F4",
+          "F5",
+          "F6",
+          "F7",
+          "F8",
+          "F9"
         ]
       }
     : {};
@@ -57,27 +58,27 @@ const deadCodeElimination =
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 module.exports = {
-  mode: 'production',
+  mode: "production",
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
   // You can exclude the *.map files from the build during deployment.
-  devtool: shouldUseSourceMap ? 'source-map' : false,
+  devtool: shouldUseSourceMap ? "source-map" : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./polyfills'), paths.appIndexJs],
+  entry: [require.resolve("./polyfills"), paths.appIndexJs],
   output: {
     // The build folder.
     path: paths.appBuild,
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'static/js/[name].[chunkhash:8].js',
-    chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
+    filename: "static/js/[name].[chunkhash:8].js",
+    chunkFilename: "static/js/[name].[chunkhash:8].chunk.js",
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: info =>
-      path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
+      path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/")
   },
   optimization: {
     minimizer: [
@@ -119,15 +120,15 @@ module.exports = {
     // Automatically split vendor and commons
     // https://twitter.com/wSokra/status/969633336732905474
     splitChunks: {
-      chunks: 'all'
+      chunks: "all"
     },
     // Keep the runtime chunk seperated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
     runtimeChunk: true
   },
   resolve: {
-    modules: ['node_modules'],
-    extensions: ['.js', '.elm']
+    modules: ["node_modules"],
+    extensions: [".js", ".elm"]
   },
 
   module: {
@@ -139,19 +140,19 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: [/[/\\\\]elm-stuff[/\\\\]/, /[/\\\\]node_modules[/\\\\]/],
-        loader: require.resolve('babel-loader'),
+        loader: require.resolve("babel-loader"),
         query: {
           // Latest stable ECMAScript features
           presets: [
             [
-              require.resolve('@babel/preset-env'),
+              require.resolve("@babel/preset-env"),
               {
                 // `entry` transforms `@babel/polyfill` into individual requires for
                 // the targeted browsers. This is safer than `usage` which performs
                 // static code analysis to determine what's required.
                 // This is probably a fine default to help trim down bundles when
                 // end-users inevitably import '@babel/polyfill'.
-                useBuiltIns: 'entry',
+                useBuiltIns: "entry",
                 // Do not transform modules to CJS
                 modules: false
               }
@@ -160,7 +161,7 @@ module.exports = {
           plugins: [
             // Polyfills the runtime needed for async/await and generators
             [
-              require('@babel/plugin-transform-runtime').default,
+              require("@babel/plugin-transform-runtime").default,
               {
                 helpers: false,
                 regenerator: true
@@ -175,14 +176,14 @@ module.exports = {
         test: /\.js$/,
         use: [
           {
-            loader: require.resolve('babel-loader'),
+            loader: require.resolve("babel-loader"),
             options: {
               babelrc: false,
               compact: false,
               presets: [
                 [
                   // Latest stable ECMAScript features
-                  require('@babel/preset-env').default,
+                  require("@babel/preset-env").default,
                   {
                     // Do not transform modules to CJS
                     modules: false
@@ -204,16 +205,16 @@ module.exports = {
           // application, so you could serve static assets outside of the
           // module system.
           {
-            loader: require.resolve('string-replace-loader'),
+            loader: require.resolve("string-replace-loader"),
             query: {
-              search: '%PUBLIC_URL%',
+              search: "%PUBLIC_URL%",
               replace: publicUrl,
-              flags: 'g'
+              flags: "g"
             }
           },
           {
             // Use the local installation of elm-make
-            loader: require.resolve('elm-webpack-loader'),
+            loader: require.resolve("elm-webpack-loader"),
             options: {
               // If ELM_DEBUGGER was set to "true", enable it. Otherwise
               // for invalid values, "false" and as a default, disable it
@@ -236,7 +237,7 @@ module.exports = {
         use: [
           MiniCssExtractPlugin.loader,
           {
-            loader: require.resolve('css-loader'),
+            loader: require.resolve("css-loader"),
             options: {
               importLoaders: 1,
               minimize: true,
@@ -244,15 +245,15 @@ module.exports = {
             }
           },
           {
-            loader: require.resolve('postcss-loader'),
+            loader: require.resolve("postcss-loader"),
             options: {
               // Necessary for external CSS imports to work
               // https://github.com/facebook/create-react-app/issues/2677
-              ident: 'postcss',
+              ident: "postcss",
               plugins: () => [
-                require('postcss-flexbugs-fixes'),
+                require("postcss-flexbugs-fixes"),
                 autoprefixer({
-                  flexbox: 'no-2009'
+                  flexbox: "no-2009"
                 })
               ]
             }
@@ -262,18 +263,18 @@ module.exports = {
 
       {
         exclude: [/\.html$/, /\.js$/, /\.elm$/, /\.css$/, /\.json$/, /\.svg$/],
-        loader: require.resolve('url-loader'),
+        loader: require.resolve("url-loader"),
         options: {
           limit: 10000,
-          name: 'static/media/[name].[hash:8].[ext]'
+          name: "static/media/[name].[hash:8].[ext]"
         }
       },
       // "file" loader for svg
       {
         test: /\.svg$/,
-        loader: require.resolve('file-loader'),
+        loader: require.resolve("file-loader"),
         options: {
-          name: 'static/media/[name].[hash:8].[ext]'
+          name: "static/media/[name].[hash:8].[ext]"
         }
       }
     ]
@@ -311,54 +312,66 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/css/[name].[contenthash:8].css',
-      chunkFilename: 'static/css/[name].[contenthash:8].chunk.css'
+      filename: "static/css/[name].[contenthash:8].css",
+      chunkFilename: "static/css/[name].[contenthash:8].chunk.css"
     }),
-    // Generate a manifest file which contains a mapping of all asset filenames
-    // to their corresponding output file so that tools can pick it up without
-    // having to parse `index.html`.
-    new ManifestPlugin({
-      fileName: 'asset-manifest.json',
-      publicPath: publicPath
-    }),
-    // Generate a service worker script that will precache, and keep up to date,
-    // the HTML & assets that are part of the Webpack build.
-    new SWPrecacheWebpackPlugin({
-      // By default, a cache-busting query parameter is appended to requests
-      // used to populate the caches, to ensure the responses are fresh.
-      // If a URL is already hashed by Webpack, then there is no concern
-      // about it being stale, and the cache-busting can be skipped.
-      dontCacheBustUrlsMatching: /\.\w{8}\./,
-      filename: 'service-worker.js',
-      logger(message) {
-        if (message.indexOf('Total precache size is') === 0) {
-          // This message occurs for every build and is a bit too noisy.
-          return;
+
+    new workboxPlugin.GenerateSW({
+      swDest: "service-worker.js",
+      clientsClaim: true,
+      skipWaiting: true,
+      runtimeCaching: [
+        {
+          urlPattern: new RegExp("http://elm-memory.netlify.com"),
+          handler: "StaleWhileRevalidate"
         }
-        if (message.indexOf('Skipping static resource') === 0) {
-          // This message obscures real errors so we ignore it.
-          // https://github.com/facebook/create-react-app/issues/2612
-          return;
-        }
-        console.log(message);
-      },
-      minify: true,
-      // Don't precache sourcemaps (they're large) and build asset manifest:
-      staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/]
-      // `navigateFallback` and `navigateFallbackWhitelist` are disabled by default; see
-      // https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#service-worker-considerations
-      // navigateFallback: publicUrl + '/index.html',
-      // navigateFallbackWhitelist: [/^(?!\/__).*/],
+      ]
     })
+    // // Generate a manifest file which contains a mapping of all asset filenames
+    // // to their corresponding output file so that tools can pick it up without
+    // // having to parse `index.html`.
+    // new ManifestPlugin({
+    //   fileName: "asset-manifest.json",
+    //   publicPath: publicPath
+    // }),
+    // // Generate a service worker script that will precache, and keep up to date,
+    // // the HTML & assets that are part of the Webpack build.
+    // new SWPrecacheWebpackPlugin({
+    //   // By default, a cache-busting query parameter is appended to requests
+    //   // used to populate the caches, to ensure the responses are fresh.
+    //   // If a URL is already hashed by Webpack, then there is no concern
+    //   // about it being stale, and the cache-busting can be skipped.
+    //   dontCacheBustUrlsMatching: /\.\w{8}\./,
+    //   filename: "service-worker.js",
+    //   logger(message) {
+    //     if (message.indexOf("Total precache size is") === 0) {
+    //       // This message occurs for every build and is a bit too noisy.
+    //       return;
+    //     }
+    //     if (message.indexOf("Skipping static resource") === 0) {
+    //       // This message obscures real errors so we ignore it.
+    //       // https://github.com/facebook/create-react-app/issues/2612
+    //       return;
+    //     }
+    //     console.log(message);
+    //   },
+    //   minify: true,
+    //   // Don't precache sourcemaps (they're large) and build asset manifest:
+    //   staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/]
+    //   // `navigateFallback` and `navigateFallbackWhitelist` are disabled by default; see
+    //   // https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#service-worker-considerations
+    //   // navigateFallback: publicUrl + '/index.html',
+    //   // navigateFallbackWhitelist: [/^(?!\/__).*/],
+    // })
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
   node: {
-    dgram: 'empty',
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty',
-    child_process: 'empty'
+    dgram: "empty",
+    fs: "empty",
+    net: "empty",
+    tls: "empty",
+    child_process: "empty"
   },
 
   // Turn off performance processing because we utilize
