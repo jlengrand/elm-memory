@@ -328,8 +328,8 @@ module.exports = {
       ],
       globDirectory: ".",
       globPatterns: [
-        "public/*.{js,png,svg,css,ico}",
-        "public/pokemons/*.{js,png,svg,css,ico}"
+        "./*.{js,png,svg,css,ico}",
+        "/pokemons/*.{js,png,svg,css,ico}"
       ]
     })
   ],
