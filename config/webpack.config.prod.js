@@ -322,7 +322,7 @@ module.exports = {
       skipWaiting: true,
       runtimeCaching: [
         {
-          urlPattern: new RegExp("http://elm-memory.netlify.com"),
+          urlPattern: ".+",
           handler: "StaleWhileRevalidate"
         }
       ]
