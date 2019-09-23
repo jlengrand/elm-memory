@@ -326,6 +326,12 @@ module.exports = {
           handler: "CacheFirst"
         }
       ],
+      globDirectory: ".",
+      globPatterns: [
+        "./*.{js,png,svg,css,ico}",
+        "/pokemons/*.{js,png,svg,css,ico}"
+      ],
+
       modifyURLPrefix: {
         // Remove a '/dist' prefix from the URLs:
         "/public": ""
