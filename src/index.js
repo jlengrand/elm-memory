@@ -18,6 +18,7 @@ import registerServiceWorker from "./registerServiceWorker";
 // import "../public/pokemons/pokeball31.png";
 // import "../public/bigIcon.png";
 // import "../public/favicon2.png";
+// import "../public/logo-yellow.svg";
 
 Elm.Main.init({
   node: document.getElementById("root")
