@@ -6,12 +6,11 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ManifestPlugin = require("webpack-manifest-plugin");
 const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
-// const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const paths = require("../config/paths");
 const getClientEnvironment = require("./env");
 const workboxPlugin = require("workbox-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -315,27 +314,12 @@ module.exports = {
       filename: "static/css/[name].[contenthash:8].css",
       chunkFilename: "static/css/[name].[contenthash:8].chunk.css"
     }),
-
+    new CopyPlugin([{ from: "./public/", to: "./" }]),
     new workboxPlugin.GenerateSW({
       swDest: "service-worker.js",
       clientsClaim: true,
       skipWaiting: true,
-      runtimeCaching: [
-        {
-          urlPattern: "/pokemons",
-          handler: "CacheFirst"
-        }
-      ],
-      globDirectory: ".",
-      globPatterns: [
-        "./*.{js,png,svg,css,ico}",
-        "/pokemons/*.{js,png,svg,css,ico}"
-      ],
-
-      modifyURLPrefix: {
-        // Remove a '/dist' prefix from the URLs:
-        "/public": ""
-      }
+      globDirectory: "."
     })
   ],
   // Some libraries import Node modules but don't use them in the browser.
