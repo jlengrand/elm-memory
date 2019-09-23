@@ -322,15 +322,14 @@ module.exports = {
       skipWaiting: true,
       runtimeCaching: [
         {
-          urlPattern: "/pokemons/.+",
+          urlPattern: "/pokemons",
           handler: "CacheFirst"
         }
       ],
-      globDirectory: ".",
-      globPatterns: [
-        "./*.{js,png,svg,css,ico}",
-        "/pokemons/*.{js,png,svg,css,ico}"
-      ]
+      modifyURLPrefix: {
+        // Remove a '/dist' prefix from the URLs:
+        "/public": ""
+      }
     })
   ],
   // Some libraries import Node modules but don't use them in the browser.
